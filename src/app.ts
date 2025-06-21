@@ -127,8 +127,13 @@ map.on("click", async (e: maplibregl.MapMouseEvent) => {
 		marker.setLngLat(location.coordinates)
 		if (location.mbid) {
 			const artists = await getArtistsFromArea(location.mbid);
-			const n = parseInt(artistsRangeValue.innerText);
+			let n = parseInt(artistsRangeValue.innerText);
 			const randomArtists = artists ? getRandomArtists(artists, n) : null;
+			if (randomArtists && randomArtists.length !== n && randomArtists.length > 0) {
+				n = randomArtists?.length;
+				artistsRange.value = n.toString();
+				artistsRangeValue.innerText = n.toString();
+			}
 			if (randomArtists && randomArtists.length > 0) {
 				origin.innerHTML = `${location.city}, ${location.country}`;
 				origin.style.display = "block";
