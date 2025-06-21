@@ -125,6 +125,7 @@ map.on("click", async (e: maplibregl.MapMouseEvent) => {
 		marker.setLngLat(e.lngLat).addTo(map);
 		const location = await getLocationFromCoords(e.lngLat.lng, e.lngLat.lat);
 		marker.setLngLat(location.coordinates)
+		map.flyTo({ center: location.coordinates, offset: [0.0, 125.0], zoom: 7 })
 		if (location.mbid) {
 			const artists = await getArtistsFromArea(location.mbid);
 			let n = parseInt(artistsRangeValue.innerText);
