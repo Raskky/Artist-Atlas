@@ -2,7 +2,7 @@ import maplibregl, { LngLatLike } from "maplibre-gl";
 import { MusicBrainzApi } from "musicbrainz-api";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-interface Styles {
+type Styles = {
 	[key: string]: string;
 	dark: string;
 	positron: string;
@@ -10,14 +10,14 @@ interface Styles {
 	liberty: string;
 }
 
-interface LocationData {
+type LocationData = {
 	city: string;
 	country: string;
 	mbid: string | null;
 	coordinates: LngLatLike;
 }
 
-interface WikidataResponse {
+type WikidataResponse = {
 	results?: {
 		bindings: Array<{
 			cityLabel?: { value: string };
@@ -28,12 +28,12 @@ interface WikidataResponse {
 	};
 }
 
-interface Artist {
+type Artist = {
 	name: string;
 	[key: string]: any;
 }
 
-interface MapState {
+type MapState = {
 	lng: number;
 	lat: number;
 	zoom: number;
@@ -48,6 +48,7 @@ const styles: Styles = {
 
 const customMarker = document.createElement('div');
 customMarker.className = 'marker';
+
 
 const origin = document.getElementById("origin") as HTMLElement;
 const artistList = document.getElementById("artist-list") as HTMLElement;
@@ -210,11 +211,15 @@ async function getLocationFromCoords(
 	};
 }
 
+let currentController: AbortController | null = null;
+
 async function tryQuery(
 	lng: number,
 	lat: number,
 	radius: number,
 ): Promise<WikidataResponse> {
+	if (currentController) currentController.abort();
+	currentController = new AbortController();
 	const sparql = `
     #pragma hint.timeout 3000
          SELECT ?city ?cityLabel ?country ?countryLabel ?coords ?mbid WHERE {
@@ -260,7 +265,7 @@ async function tryQuery(
         `;
 
 	const response = await fetch(
-		`https://query.wikidata.org/sparql?query=${encodeURIComponent(sparql)}&format=json`,
+		`https://query.wikidata.org/sparql?query=${encodeURIComponent(sparql)}&format=json`, { signal: currentController.signal }
 	);
 	return await response.json();
 }
