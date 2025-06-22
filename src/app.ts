@@ -46,6 +46,9 @@ const styles: Styles = {
 	liberty: "https://tiles.openfreemap.org/styles/liberty",
 };
 
+const customMarker = document.createElement('div');
+customMarker.className = 'marker';
+
 const origin = document.getElementById("origin") as HTMLElement;
 const artistList = document.getElementById("artist-list") as HTMLElement;
 const artistsRange = document.getElementById("artists-range") as HTMLInputElement;
@@ -75,7 +78,7 @@ const map = new maplibregl.Map({
 	zoom: 6,
 });
 
-const marker = new maplibregl.Marker();
+const marker = new maplibregl.Marker({ element: customMarker });
 const popup = new maplibregl.Popup({
 	closeOnClick: false,
 	focusAfterOpen: true,

@@ -106,6 +106,18 @@ ul {
 	width: 50px;
 }
 
+.marker {
+	display: block;
+	position: absolute;
+	transform: translate(-50%, -50%);
+	width: 24px;
+	height: 36px;
+	background-image: url(../images/custom-marker.png);
+	background-size: 100%;
+	background-repeat: no-repeat;
+	padding: 0;
+}
+
 .maplibregl-popup-content {
 	position: absolute;
 	max-height: 240px;
