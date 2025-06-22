@@ -116,6 +116,7 @@ ul {
 	background-size: 100%;
 	background-repeat: no-repeat;
 	padding: 0;
+	cursor: none;
 }
 
 .maplibregl-popup-content {

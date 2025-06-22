@@ -1,8 +1,8 @@
 {
-  "name": "untitled-web-app",
+  "name": "Artist Atlas",
   "version": "0.0.1",
-  "description": "An interactive map...",
-  "main": "app.js",
+  "description": "Artist Map Explorer ",
+  "main": "app.ts",
   "scripts": {
 	"start": "bun run index.html",
 	"test": "echo \"Error: no test specified\" && exit 1",
