@@ -128,14 +128,14 @@ map.on("click", async (e: maplibregl.MapMouseEvent) => {
 		map.flyTo({ center: location.coordinates, offset: [0.0, 125.0], zoom: 7 })
 		if (location.mbid) {
 			const artists = await getArtistsFromArea(location.mbid);
-			let n = parseInt(artistsRangeValue.innerText);
+			const n = parseInt(artistsRangeValue.innerText);
 			const randomArtists = artists ? getRandomArtists(artists, n) : null;
-			if (randomArtists && randomArtists.length !== n && randomArtists.length > 0) {
-				n = randomArtists?.length;
-				artistsRange.value = n.toString();
-				artistsRangeValue.innerText = n.toString();
+			const nRandomArtists = randomArtists?.length;
+			if (nRandomArtists && nRandomArtists !== n && nRandomArtists > 0) {
+				artistsRange.value = nRandomArtists.toString();
+				artistsRangeValue.innerText = nRandomArtists.toString();
 			}
-			if (randomArtists && randomArtists.length > 0) {
+			if (nRandomArtists && nRandomArtists > 0) {
 				origin.innerHTML = `${location.city}, ${location.country}`;
 				origin.style.display = "block";
 				artistList.style.display = "block";
@@ -162,6 +162,10 @@ map.on("click", async (e: maplibregl.MapMouseEvent) => {
 
 					popup.on("close", () => {
 						clearScreen();
+						if (artistsRange.value !== n.toString()) {
+							artistsRangeValue.innerText = n.toString();
+							artistsRange.value = n.toString();
+						}
 					});
 				}
 			} else {
