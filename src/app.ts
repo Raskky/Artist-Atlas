@@ -79,7 +79,7 @@ const map = new maplibregl.Map({
 	zoom: 6,
 });
 
-const marker = new maplibregl.Marker({ element: customMarker });
+const marker = new maplibregl.Marker({ element: customMarker, offset: [0, -15] });
 const popup = new maplibregl.Popup({
 	closeOnClick: false,
 	focusAfterOpen: true,
@@ -132,9 +132,11 @@ map.on("click", async (e: maplibregl.MapMouseEvent) => {
 		map.flyTo({ center: location.coordinates, offset: [0.0, 125.0], zoom: 7 })
 		if (location.mbid) {
 			const artists = await getArtistsFromArea(location.mbid);
+
 			const n = parseInt(artistsRangeValue.innerText);
 			const randomArtists = artists ? getRandomArtists(artists, n) : null;
 			const nRandomArtists = randomArtists?.length;
+
 			if (nRandomArtists && nRandomArtists !== n && nRandomArtists > 0) {
 				artistsRange.value = nRandomArtists.toString();
 				artistsRangeValue.innerText = nRandomArtists.toString();
@@ -176,7 +178,15 @@ map.on("click", async (e: maplibregl.MapMouseEvent) => {
 				clearScreen();
 			}
 		} else {
-			clearScreen();
+			const noArtists = document.createElement("div");
+			noArtists.innerText = "No artists at this location!";
+			popup
+				.setLngLat(location.coordinates)
+				.setMaxWidth("none")
+				.setOffset(45)
+				.setHTML(noArtists.innerHTML)
+				.addTo(map);
+			popup.on("close", () => clearScreen());
 		}
 	} catch (error) {
 		console.error("Error handling click:", error);
