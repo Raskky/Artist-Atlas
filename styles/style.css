@@ -41,6 +41,11 @@ ul {
 	appearance: none;
 }
 
+#map-style-selector:hover {
+	background-color: rgb(220, 220, 220);
+	cursor: pointer;
+}
+
 #origin {
 	display: none;
 	position: absolute;
@@ -97,6 +102,10 @@ ul {
 	padding-top: 0;
 }
 
+#artists-range.slider:hover {
+	cursor: pointer;
+}
+
 #artists-range-value {
 	font-weight: 600;
 	font-size: 16px;
@@ -150,6 +159,7 @@ ul {
 
 #search-button:hover {
 	background-color: rgb(220, 220, 220);
+	cursor: pointer;
 }
 
 #search-button:active {
