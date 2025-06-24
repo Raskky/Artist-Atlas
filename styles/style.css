@@ -200,3 +200,10 @@ ul {
 .maplibregl-popup-tip {
 	display: none;
 }
+
+.maplibregl-ctrl-top-left {
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 20%;
+}

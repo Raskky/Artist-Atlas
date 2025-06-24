@@ -1,6 +1,8 @@
 import maplibregl, { LngLatLike } from "maplibre-gl";
 import { MusicBrainzApi } from "musicbrainz-api";
+import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "maplibre-gl/dist/maplibre-gl.css";
+import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 
 type Styles = {
 	[key: string]: string;
@@ -47,7 +49,6 @@ const styles: Styles = {
 const customMarker = document.createElement('div');
 customMarker.className = 'marker';
 
-
 const origin = document.getElementById("origin") as HTMLElement;
 const artistList = document.getElementById("artist-list") as HTMLElement;
 const artistsRange = document.getElementById("artists-range") as HTMLInputElement;
@@ -77,6 +78,18 @@ const map = new maplibregl.Map({
 	zoom: 6,
 });
 
+const draw = new MaplibreTerradrawControl({
+	modes: [
+		'render',
+		'circle',
+		'delete-selection',
+		'delete',
+	],
+	open: true,
+});
+
+map.addControl(draw, 'top-left');
+
 const marker = new maplibregl.Marker({ element: customMarker, offset: [0, -15] });
 const popup = new maplibregl.Popup({
 	closeOnClick: false,
@@ -84,7 +97,14 @@ const popup = new maplibregl.Popup({
 });
 popup.on("close", () => clearScreen());
 
+let circleEnable = false;
 let saveMapStateTimeout: NodeJS.Timeout;
+
+draw.on("mode-changed", (event) => {
+	if (event.mode == "circle") {
+		circleEnable = true;
+	} else circleEnable = false;
+})
 
 document.addEventListener("keydown", (e) => {
 	if (e.key === "Escape") clearScreen();
@@ -123,58 +143,60 @@ map.on("move", saveMapState);
 map.on("zoom", saveMapState);
 
 map.on("click", async (e: maplibregl.MapMouseEvent) => {
-	clearScreen();
-	try {
-		marker.setLngLat(e.lngLat).addTo(map);
-		const location = await getLocationFromCoords(e.lngLat.lng, e.lngLat.lat);
-		marker.setLngLat(location.coordinates)
-		map.flyTo({ center: location.coordinates, offset: [0.0, 125.0], zoom: 7 })
-		if (location.mbid) {
-			const artists = await getArtistsFromArea(location.mbid);
+	if (!circleEnable) {
+		clearScreen();
+		try {
+			marker.setLngLat(e.lngLat).addTo(map);
+			const location = await getLocationFromCoords(e.lngLat.lng, e.lngLat.lat);
+			marker.setLngLat(location.coordinates)
+			map.flyTo({ center: location.coordinates, offset: [0.0, 125.0], zoom: 7 })
+			if (location.mbid) {
+				const artists = await getArtistsFromArea(location.mbid);
 
-			const n = parseInt(artistsRangeValue.innerText);
-			const randomArtists = artists ? getRandomArtists(artists, n) : null;
-			const nRandomArtists = randomArtists?.length;
+				const n = parseInt(artistsRangeValue.innerText);
+				const randomArtists = artists ? getRandomArtists(artists, n) : null;
+				const nRandomArtists = randomArtists?.length;
 
-			if (nRandomArtists && nRandomArtists !== n && nRandomArtists > 0) {
-				artistsRange.value = nRandomArtists.toString();
-				artistsRangeValue.innerText = nRandomArtists.toString();
-			}
-			if (nRandomArtists && nRandomArtists > 0) {
-				origin.innerHTML = `${location.city}, ${location.country}`;
-				origin.style.display = "block";
-				artistList.style.display = "block";
-				const p = document.createElement("p");
-				p.id = "artist-info";
-				p.innerHTML = `<b>${n} Artists from ${location.city}, ${location.country}</b>`;
-				artistList.appendChild(p);
+				if (nRandomArtists && nRandomArtists !== n && nRandomArtists > 0) {
+					artistsRange.value = nRandomArtists.toString();
+					artistsRangeValue.innerText = nRandomArtists.toString();
+				}
+				if (nRandomArtists && nRandomArtists > 0) {
+					origin.innerHTML = `${location.city}, ${location.country}`;
+					origin.style.display = "block";
+					artistList.style.display = "block";
+					const p = document.createElement("p");
+					p.id = "artist-info";
+					p.innerHTML = `<b>${n} Artists from ${location.city}, ${location.country}</b>`;
+					artistList.appendChild(p);
 
-				randomArtists.forEach((a: Artist) => {
-					const ul = document.createElement("ul");
-					ul.innerHTML = a.name;
-					artistList.appendChild(ul);
-				});
-
-				const artistsContainer = document.getElementById("artists-container")
-				if (artistsContainer) {
-					showPopup(location.coordinates, artistsContainer.innerHTML);
-					popup.on("close", () => {
-						if (artistsRange.value !== n.toString()) {
-							artistsRangeValue.innerText = n.toString();
-							artistsRange.value = n.toString();
-						}
+					randomArtists.forEach((a: Artist) => {
+						const ul = document.createElement("ul");
+						ul.innerHTML = a.name;
+						artistList.appendChild(ul);
 					});
+
+					const artistsContainer = document.getElementById("artists-container")
+					if (artistsContainer) {
+						showPopup(location.coordinates, artistsContainer.innerHTML);
+						popup.on("close", () => {
+							if (artistsRange.value !== n.toString()) {
+								artistsRangeValue.innerText = n.toString();
+								artistsRange.value = n.toString();
+							}
+						});
+					}
+				} else {
+					clearScreen();
 				}
 			} else {
-				clearScreen();
+				const noArtists = document.createElement("div");
+				noArtists.innerText = "No artists at this location!";
+				showPopup(location.coordinates, noArtists.innerHTML);
 			}
-		} else {
-			const noArtists = document.createElement("div");
-			noArtists.innerText = "No artists at this location!";
-			showPopup(location.coordinates, noArtists.innerHTML);
+		} catch (error) {
+			console.error("Error handling click:", error);
 		}
-	} catch (error) {
-		console.error("Error handling click:", error);
 	}
 });
 
@@ -290,6 +312,7 @@ function getRandomArtists(artists: Artist[], n: number): Array<Artist> {
 function clearScreen(): void {
 	marker.remove();
 	popup.remove();
+	draw.deactivate();
 
 	if (map.getLayer("maplibrelg-marker")) map.removeLayer("maplibregl-marker");
 	if (map.getLayer("location-radius-outline"))
