@@ -4,8 +4,8 @@
   "description": "Artist Map Explorer ",
   "main": "app.ts",
   "scripts": {
-	"start": "bun run index.html",
-	"test": "echo \"Error: no test specified\" && exit 1",
+    "start": "bun run index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Aleksander Heraskou",
   "license": "ISC",
@@ -19,7 +19,8 @@
     "@watergis/mapbox.photon": "^0.0.5",
     "live-server": "^1.2.2",
     "maplibre-gl": "^5.6.0",
-    "musicbrainz-api": "^0.25.0"
+    "musicbrainz-api": "^0.25.0",
+    "terra-draw-maplibre-gl-adapter": "^1.1.1"
   },
   "devDependencies": {
     "@types/bun": "^1.2.17"
