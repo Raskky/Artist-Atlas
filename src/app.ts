@@ -5,7 +5,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 type Styles = {
 	[key: string]: string;
 	dark: string;
-	positron: string;
 	bright: string;
 	liberty: string;
 }
@@ -41,7 +40,6 @@ type MapState = {
 
 const styles: Styles = {
 	dark: "https://tiles.openfreemap.org/styles/dark",
-	positron: "https://tiles.openfreemap.org/styles/positron",
 	bright: "https://tiles.openfreemap.org/styles/bright",
 	liberty: "https://tiles.openfreemap.org/styles/liberty",
 };
@@ -84,6 +82,7 @@ const popup = new maplibregl.Popup({
 	closeOnClick: false,
 	focusAfterOpen: true,
 });
+popup.on("close", () => clearScreen());
 
 let saveMapStateTimeout: NodeJS.Timeout;
 
@@ -145,7 +144,6 @@ map.on("click", async (e: maplibregl.MapMouseEvent) => {
 				origin.innerHTML = `${location.city}, ${location.country}`;
 				origin.style.display = "block";
 				artistList.style.display = "block";
-
 				const p = document.createElement("p");
 				p.id = "artist-info";
 				p.innerHTML = `<b>${n} Artists from ${location.city}, ${location.country}</b>`;
@@ -159,15 +157,8 @@ map.on("click", async (e: maplibregl.MapMouseEvent) => {
 
 				const artistsContainer = document.getElementById("artists-container")
 				if (artistsContainer) {
-					popup
-						.setLngLat(location.coordinates)
-						.setMaxWidth("none")
-						.setOffset(45)
-						.setHTML(artistsContainer.innerHTML)
-						.addTo(map);
-
+					showPopup(location.coordinates, artistsContainer.innerHTML);
 					popup.on("close", () => {
-						clearScreen();
 						if (artistsRange.value !== n.toString()) {
 							artistsRangeValue.innerText = n.toString();
 							artistsRange.value = n.toString();
@@ -180,20 +171,14 @@ map.on("click", async (e: maplibregl.MapMouseEvent) => {
 		} else {
 			const noArtists = document.createElement("div");
 			noArtists.innerText = "No artists at this location!";
-			popup
-				.setLngLat(location.coordinates)
-				.setMaxWidth("none")
-				.setOffset(45)
-				.setHTML(noArtists.innerHTML)
-				.addTo(map);
-			popup.on("close", () => clearScreen());
+			showPopup(location.coordinates, noArtists.innerHTML);
 		}
 	} catch (error) {
 		console.error("Error handling click:", error);
 	}
 });
 
-// Preserve style between sessions
+// Preserve map style between sessions
 const savedStyle = localStorage.getItem("mapStyle");
 if (savedStyle && styles[savedStyle]) {
 	mapStyleSelector.value = savedStyle;
@@ -293,7 +278,7 @@ async function getArtistsFromArea(areaMBID: string): Promise<Artist[] | null> {
 	}
 }
 
-function getRandomArtists(artists: Artist[], n: number) {
+function getRandomArtists(artists: Artist[], n: number): Array<Artist> {
 	try {
 		return [...artists].sort(() => Math.random() - 0.5).slice(0, n);
 	} catch (error) {
@@ -343,4 +328,13 @@ function loadMapState(): void {
 			console.error("Failed to load saved map state:", error);
 		}
 	}
+}
+
+function showPopup(coords: LngLatLike, content: string): void {
+	popup
+		.setLngLat(coords)
+		.setMaxWidth("none")
+		.setOffset(45)
+		.setHTML(content)
+		.addTo(map);
 }

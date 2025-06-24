@@ -14,6 +14,7 @@
         "live-server": "^1.2.2",
         "maplibre-gl": "^5.6.0",
         "musicbrainz-api": "^0.25.0",
+        "terra-draw-maplibre-gl-adapter": "^1.1.1",
       },
       "devDependencies": {
         "@types/bun": "^1.2.17",
@@ -704,6 +705,10 @@
     "supercluster": ["supercluster@8.0.1", "", { "dependencies": { "kdbush": "^4.0.2" } }, "sha512-IiOea5kJ9iqzD2t7QJq/cREyLHTtSmUT6gQsweojg9WH2sYJqZK9SswTu6jrscO6D1G5v5vYZ9ru/eq85lXeZQ=="],
 
     "sweepline-intersections": ["sweepline-intersections@1.5.0", "", { "dependencies": { "tinyqueue": "^2.0.0" } }, "sha512-AoVmx72QHpKtItPu72TzFL+kcYjd67BPLDoR0LarIk+xyaRg+pDTMFXndIEvZf9xEKnJv6JdhgRMnocoG0D3AQ=="],
+
+    "terra-draw": ["terra-draw@1.8.0", "", {}, "sha512-sg7JykD2WhXmPXAljqlIZJh33hMLKChXIeoS9DFOcvP7oEyjN9aVURbRq5N1GyqM+Zx7ObOVdmDcsZFeEtmY3A=="],
+
+    "terra-draw-maplibre-gl-adapter": ["terra-draw-maplibre-gl-adapter@1.1.1", "", { "peerDependencies": { "maplibre-gl": ">=4", "terra-draw": "^1.0.0" } }, "sha512-PkrhUO2sVuc8dviOzzfKyEAuToEKcy1UWOQ/EtdNXx+dPAw8WuCXOhXJpf+M1yi02z+v6mRMq/7h8sRs2fBeng=="],
 
     "through": ["through@2.3.8", "", {}, "sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg=="],
 
