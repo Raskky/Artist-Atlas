@@ -1,8 +1,11 @@
 import maplibregl, { LngLatLike } from "maplibre-gl";
+import { TerraDraw, TerraDrawCircleMode, TerraDrawRectangleMode } from "terra-draw";
+import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import { MusicBrainzApi } from "musicbrainz-api";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
+import { circle } from "@turf/turf";
 
 type Styles = {
 	[key: string]: string;
@@ -78,17 +81,25 @@ const map = new maplibregl.Map({
 	zoom: 6,
 });
 
-const draw = new MaplibreTerradrawControl({
-	modes: [
-		'render',
-		'circle',
-		'delete-selection',
-		'delete',
-	],
-	open: true,
-});
+// const draw = new MaplibreTerradrawControl({
+// 	modes: [
+// 		'render',
+// 		'circle',
+// 		'delete-selection',
+// 		'delete',
+// 	],
+// 	open: true,
+// });
 
-map.addControl(draw, 'top-left');
+// map.addControl(draw, 'top-left');
+
+const draw = new TerraDraw({
+	adapter: new TerraDrawMapLibreGLAdapter({ map: map }),
+	modes: [new TerraDrawCircleMode()]
+})
+
+//draw.start();
+//draw.setMode("circle");
 
 const marker = new maplibregl.Marker({ element: customMarker, offset: [0, -15] });
 const popup = new maplibregl.Popup({
@@ -100,11 +111,11 @@ popup.on("close", () => clearScreen());
 let circleEnable = false;
 let saveMapStateTimeout: NodeJS.Timeout;
 
-draw.on("mode-changed", (event) => {
-	if (event.mode == "circle") {
-		circleEnable = true;
-	} else circleEnable = false;
-})
+// draw.on("mode-changed", (event) => {
+// 	if (event.mode == "circle") {
+// 		circleEnable = true;
+// 	} else circleEnable = false;
+// })
 
 document.addEventListener("keydown", (e) => {
 	if (e.key === "Escape") clearScreen();
@@ -312,7 +323,7 @@ function getRandomArtists(artists: Artist[], n: number): Array<Artist> {
 function clearScreen(): void {
 	marker.remove();
 	popup.remove();
-	draw.deactivate();
+	// draw.deactivate();
 
 	if (map.getLayer("maplibrelg-marker")) map.removeLayer("maplibregl-marker");
 	if (map.getLayer("location-radius-outline"))
@@ -361,3 +372,4 @@ function showPopup(coords: LngLatLike, content: string): void {
 		.setHTML(content)
 		.addTo(map);
 }
+
