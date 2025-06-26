@@ -173,7 +173,7 @@ map.on("click", async (e: maplibregl.MapMouseEvent) => {
 				}
 				if (nRandomArtists && nRandomArtists > 0) {
 					origin.innerHTML = `${location.city}, ${location.country}`;
-					origin.style.display = "block";
+					origin.style.display = "flex";
 					artistList.style.display = "block";
 					const p = document.createElement("p");
 					p.id = "artist-info";

@@ -18,11 +18,12 @@
 			<input id="search-input" type="text" placeholder="Search">
 			<button id="search-button">Search</button>
 		</div>
+        	<div id="origin"></div>
         	<div id="map-style-switcher">
         		<select id="map-style-selector"></select>
         	</div>
-        	<div id="origin"></div>
-	</div>
+
+		</div>
 	<div id="artists-container">
         	<div id="artist-list"></div>
         </div>
