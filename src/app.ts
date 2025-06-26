@@ -1,11 +1,10 @@
-import maplibregl, { LngLatLike } from "maplibre-gl";
-import { TerraDraw, TerraDrawCircleMode, TerraDrawRectangleMode } from "terra-draw";
+import maplibregl from "maplibre-gl";
+import type { LngLatLike } from "maplibre-gl";
+import { TerraDraw, TerraDrawCircleMode } from "terra-draw";
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import { MusicBrainzApi } from "musicbrainz-api";
-import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
-import { circle } from "@turf/turf";
 
 type Styles = {
 	[key: string]: string;
