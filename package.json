@@ -2,7 +2,8 @@
   "name": "Artist Atlas",
   "version": "0.0.1",
   "description": "Artist Map Explorer ",
-  "main": "app.ts",
+  "type": "module",
+  "main": "./src/app.ts",
   "scripts": {
     "start": "bun run index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,13 +18,14 @@
     "@types/node": "^24.0.3",
     "@vis.gl/react-maplibre": "^8.0.4",
     "@watergis/mapbox.photon": "^0.0.5",
-    "live-server": "^1.2.2",
     "maplibre-gl": "^5.6.0",
     "musicbrainz-api": "^0.25.0",
     "terra-draw-maplibre-gl-adapter": "^1.1.1"
   },
   "devDependencies": {
     "@types/bun": "^1.2.17",
-    "@watergis/maplibre-gl-terradraw": "^1.4.0"
-  }
+    "@watergis/maplibre-gl-terradraw": "^1.4.0",
+    "typescript": "^5.8.3"
+  },
+  "private": true
 }

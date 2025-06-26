@@ -2,7 +2,8 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "untitled-web-app",
+      "name": "Artist Atlas",
+	"type": "module",
       "dependencies": {
         "@fontsource/poppins": "^5.2.6",
         "@maplibre/maplibre-gl-geocoder": "^1.8.0",
@@ -19,6 +20,7 @@
       "devDependencies": {
         "@types/bun": "^1.2.17",
         "@watergis/maplibre-gl-terradraw": "^1.4.0",
+        "typescript": "^5.8.3",
       },
     },
   },
@@ -736,6 +738,8 @@
     "tough-cookie": ["tough-cookie@5.1.2", "", { "dependencies": { "tldts": "^6.1.32" } }, "sha512-FVDYdxtnj0G6Qm/DhNPSb8Ju59ULcup3tuJxkFb5K8Bv2pUXILbf0xZWU8PX8Ov19OXljbUyveOFwRMwkXzO+A=="],
 
     "tslib": ["tslib@2.8.1", "", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
+
+    "typescript": ["typescript@5.8.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ=="],
 
     "typewise": ["typewise@1.0.3", "", { "dependencies": { "typewise-core": "^1.2.0" } }, "sha512-aXofE06xGhaQSPzt8hlTY+/YWQhm9P0jYUp1f2XtmW/3Bk0qzXcyFWAtPoo2uTGQj1ZwbDuSyuxicq+aDo8lCQ=="],
 
