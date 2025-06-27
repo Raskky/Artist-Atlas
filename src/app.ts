@@ -138,7 +138,12 @@ map.on("move", saveMapState);
 map.on("zoom", saveMapState);
 
 map.on("click", async (e: maplibregl.MapMouseEvent) => {
-	if (!(terraDrawInstance.getMode() === "Circle")) {
+	const features = terraDrawInstance.getSnapshot();
+	const polygonFeatures = features.filter(feature => feature.geometry.type === "Polygon");
+	if (polygonFeatures.length > 1) {
+		terraDrawInstance.setMode("static");
+	}
+	if (!(terraDrawInstance.getMode() !== "Circle") && terraDrawInstance.getMode() === "Static") {
 		clearScreen();
 		try {
 			marker.setLngLat(e.lngLat).addTo(map);
