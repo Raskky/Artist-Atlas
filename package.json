@@ -18,6 +18,7 @@
     "@types/node": "^24.0.3",
     "@vis.gl/react-maplibre": "^8.0.4",
     "@watergis/mapbox.photon": "^0.0.5",
+    "@watergis/maplibre-gl-terradraw": "watergis/maplibre-gl-terradraw",
     "maplibre-gl": "^5.6.0",
     "musicbrainz-api": "^0.25.0",
     "terra-draw-maplibre-gl-adapter": "^1.1.1"

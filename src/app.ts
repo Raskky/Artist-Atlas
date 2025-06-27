@@ -1,9 +1,8 @@
 import maplibregl from "maplibre-gl";
 import type { LngLatLike } from "maplibre-gl";
-import { TerraDraw, TerraDrawCircleMode } from "terra-draw";
-import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import { MusicBrainzApi } from "musicbrainz-api";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 
 type Styles = {
@@ -80,25 +79,19 @@ const map = new maplibregl.Map({
 	zoom: 6,
 });
 
-// const draw = new MaplibreTerradrawControl({
-// 	modes: [
-// 		'render',
-// 		'circle',
-// 		'delete-selection',
-// 		'delete',
-// 	],
-// 	open: true,
-// });
+const draw = new MaplibreTerradrawControl({
+	modes: [
+		'render',
+		'circle',
+		'delete-selection',
+		'delete',
+	],
+	open: true,
+});
 
-// map.addControl(draw, 'top-left');
+map.addControl(draw, 'top-left');
 
-const draw = new TerraDraw({
-	adapter: new TerraDrawMapLibreGLAdapter({ map: map }),
-	modes: [new TerraDrawCircleMode()]
-})
-
-//draw.start();
-//draw.setMode("circle");
+const terraDrawInstance = draw.getTerraDrawInstance();
 
 const marker = new maplibregl.Marker({ element: customMarker, offset: [0, -15] });
 const popup = new maplibregl.Popup({
@@ -107,14 +100,7 @@ const popup = new maplibregl.Popup({
 });
 popup.on("close", () => clearScreen());
 
-let circleEnable = false;
 let saveMapStateTimeout: NodeJS.Timeout;
-
-// draw.on("mode-changed", (event) => {
-// 	if (event.mode == "circle") {
-// 		circleEnable = true;
-// 	} else circleEnable = false;
-// })
 
 document.addEventListener("keydown", (e) => {
 	if (e.key === "Escape") clearScreen();
@@ -123,7 +109,6 @@ document.addEventListener("keydown", (e) => {
 artistsRange.oninput = function() {
 	artistsRangeValue.innerText = artistsRange.value;
 }
-
 mapStyleSelector.addEventListener("change", (e: Event) => {
 	const target = e.target as HTMLSelectElement;
 	const selectedStyle = target.value.toLowerCase();
@@ -153,7 +138,7 @@ map.on("move", saveMapState);
 map.on("zoom", saveMapState);
 
 map.on("click", async (e: maplibregl.MapMouseEvent) => {
-	if (!circleEnable) {
+	if (!(terraDrawInstance.getMode() === "Circle")) {
 		clearScreen();
 		try {
 			marker.setLngLat(e.lngLat).addTo(map);
@@ -322,7 +307,7 @@ function getRandomArtists(artists: Artist[], n: number): Array<Artist> {
 function clearScreen(): void {
 	marker.remove();
 	popup.remove();
-	// draw.deactivate();
+	draw.deactivate();
 
 	if (map.getLayer("maplibrelg-marker")) map.removeLayer("maplibregl-marker");
 	if (map.getLayer("location-radius-outline"))
