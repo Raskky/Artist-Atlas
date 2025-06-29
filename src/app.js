@@ -1,47 +1,10 @@
 import maplibregl from "maplibre-gl";
-import type { LngLatLike } from "maplibre-gl";
 import { MusicBrainzApi } from "musicbrainz-api";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 
-type Styles = {
-	[key: string]: string;
-	dark: string;
-	bright: string;
-	liberty: string;
-}
-
-type LocationData = {
-	city: string;
-	country: string;
-	mbid: string | null;
-	coordinates: LngLatLike;
-}
-
-type WikidataResponse = {
-	results?: {
-		bindings: Array<{
-			cityLabel?: { value: string };
-			countryLabel?: { value: string };
-			mbid?: { value: string };
-			coords?: { value: string };
-		}>;
-	};
-}
-
-type Artist = {
-	name: string;
-	[key: string]: any;
-}
-
-type MapState = {
-	lng: number;
-	lat: number;
-	zoom: number;
-}
-
-const styles: Styles = {
+const styles = {
 	dark: "https://tiles.openfreemap.org/styles/dark",
 	bright: "https://tiles.openfreemap.org/styles/bright",
 	liberty: "https://tiles.openfreemap.org/styles/liberty",
@@ -50,14 +13,14 @@ const styles: Styles = {
 const customMarker = document.createElement('div');
 customMarker.className = 'marker';
 
-const origin = document.getElementById("origin") as HTMLElement;
-const artistList = document.getElementById("artist-list") as HTMLElement;
-const artistsRange = document.getElementById("artists-range") as HTMLInputElement;
-const artistsRangeValue = document.getElementById("artists-range-value") as HTMLElement;
+const origin = document.getElementById("origin");
+const artistList = document.getElementById("artist-list");
+const artistsRange = document.getElementById("artists-range");
+const artistsRangeValue = document.getElementById("artists-range-value");
 artistsRangeValue.innerText = artistsRange.value;
 const mapStyleSelector = document.getElementById(
 	"map-style-selector",
-) as HTMLSelectElement;
+);
 
 for (const style in styles) {
 	const option = document.createElement("option");
@@ -101,7 +64,7 @@ const popup = new maplibregl.Popup({
 });
 popup.on("close", () => clearScreen());
 
-let saveMapStateTimeout: NodeJS.Timeout;
+let saveMapStateTimeout;
 
 document.addEventListener("keydown", (e) => {
 	if (e.key === "Escape") clearScreen();
@@ -110,8 +73,8 @@ document.addEventListener("keydown", (e) => {
 artistsRange.oninput = function() {
 	artistsRangeValue.innerText = artistsRange.value;
 }
-mapStyleSelector.addEventListener("change", (e: Event) => {
-	const target = e.target as HTMLSelectElement;
+mapStyleSelector.addEventListener("change", (e) => {
+	const target = e.target;
 	const selectedStyle = target.value.toLowerCase();
 
 	if (styles[selectedStyle]) {
@@ -132,7 +95,7 @@ mapStyleSelector.addEventListener("change", (e: Event) => {
 	}, 500);
 });
 
-map.on("error", (e: { error: Error }) => {
+map.on("error", (e) => {
 	console.error("Map error: ", e.error);
 });
 
@@ -140,7 +103,7 @@ map.on("load", loadMapState);
 map.on("move", saveMapState);
 map.on("zoom", saveMapState);
 
-map.on("click", async (e: maplibregl.MapMouseEvent) => {
+map.on("click", async (e) => {
 	const features = terraDrawInstance.getSnapshot();
 	const polygonFeatures = features.filter(feature => feature.geometry.type === "Polygon");
 	if (polygonFeatures.length > 1) {
@@ -172,7 +135,7 @@ map.on("click", async (e: maplibregl.MapMouseEvent) => {
 					p.innerHTML = `<b>${n} Artists from ${location.city}, ${location.country}</b>`;
 					artistList.appendChild(p);
 
-					randomArtists.forEach((a: Artist) => {
+					randomArtists.forEach((a) => {
 						const ul = document.createElement("ul");
 						ul.innerHTML = a.name;
 						artistList.appendChild(ul);
@@ -210,9 +173,9 @@ if (savedStyle && styles[savedStyle]) {
 }
 
 async function getLocationFromCoords(
-	lng: number,
-	lat: number,
-): Promise<LocationData> {
+	lng,
+	lat,
+) {
 	let result = await tryQuery(lng, lat, 3);
 	if (!result || !result.results || result.results.bindings.length === 0) {
 		result = await tryQuery(lng, lat, 50);
@@ -224,19 +187,19 @@ async function getLocationFromCoords(
 		country: data?.countryLabel?.value || "Unknown",
 		mbid: data?.mbid?.value || null,
 		coordinates: {
-			lng: coordsMatch ? parseFloat(coordsMatch[0] as any) : lng,
-			lat: coordsMatch ? parseFloat(coordsMatch[1] as any) : lat,
+			lng: coordsMatch ? parseFloat(coordsMatch[0]) : lng,
+			lat: coordsMatch ? parseFloat(coordsMatch[1]) : lat,
 		},
 	};
 }
 
-let currentController: AbortController | null = null;
+let currentController;
 
 async function tryQuery(
-	lng: number,
-	lat: number,
-	radius: number,
-): Promise<WikidataResponse> {
+	lng,
+	lat,
+	radius,
+) {
 	if (currentController) currentController.abort();
 	currentController = new AbortController();
 	const sparql = `
@@ -289,7 +252,7 @@ async function tryQuery(
 	return await response.json();
 }
 
-async function getArtistsFromArea(areaMBID: string): Promise<Artist[] | null> {
+async function getArtistsFromArea(areaMBID) {
 	try {
 		const response = await mbApi.browse("artist", {
 			area: areaMBID,
@@ -302,7 +265,7 @@ async function getArtistsFromArea(areaMBID: string): Promise<Artist[] | null> {
 	}
 }
 
-function getRandomArtists(artists: Artist[], n: number): Array<Artist> {
+function getRandomArtists(artists, n) {
 	try {
 		return [...artists].sort(() => Math.random() - 0.5).slice(0, n);
 	} catch (error) {
@@ -311,7 +274,7 @@ function getRandomArtists(artists: Artist[], n: number): Array<Artist> {
 	}
 }
 
-function clearScreen(): void {
+function clearScreen() {
 	marker.remove();
 	popup.remove();
 	draw.deactivate();
@@ -328,7 +291,7 @@ function clearScreen(): void {
 	artistList.style.display = "none";
 }
 
-function saveMapState(): void {
+function saveMapState() {
 	clearTimeout(saveMapStateTimeout);
 	saveMapStateTimeout = setTimeout(() => {
 		const center = map.getCenter();
@@ -343,11 +306,11 @@ function saveMapState(): void {
 	}, 500);
 }
 
-function loadMapState(): void {
+function loadMapState() {
 	const savedState = localStorage.getItem("mapState");
 	if (savedState) {
 		try {
-			const { lng, lat, zoom } = JSON.parse(savedState) as MapState;
+			const { lng, lat, zoom } = JSON.parse(savedState);
 			map.jumpTo({ center: [lng, lat], zoom });
 		} catch (error) {
 			console.error("Failed to load saved map state:", error);
@@ -355,7 +318,7 @@ function loadMapState(): void {
 	}
 }
 
-function showPopup(coords: LngLatLike, content: string): void {
+function showPopup(coords, content) {
 	popup
 		.setLngLat(coords)
 		.setMaxWidth("none")
