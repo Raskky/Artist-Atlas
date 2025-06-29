@@ -93,6 +93,7 @@ map.addControl(draw, 'top-left');
 
 const terraDrawInstance = draw.getTerraDrawInstance();
 
+
 const marker = new maplibregl.Marker({ element: customMarker, offset: [0, -15] });
 const popup = new maplibregl.Popup({
 	closeOnClick: false,
@@ -122,7 +123,9 @@ mapStyleSelector.addEventListener("change", (e: Event) => {
 	canvas.style.opacity = "0";
 
 	setTimeout(() => {
-		map.setStyle(styles[selectedStyle]);
+		if (styles[selectedStyle]) {
+			map.setStyle(styles[selectedStyle]);
+		}
 		map.once("styledata", () => {
 			canvas.style.opacity = "1";
 		});
@@ -138,7 +141,6 @@ map.on("move", saveMapState);
 map.on("zoom", saveMapState);
 
 map.on("click", async (e: maplibregl.MapMouseEvent) => {
-	console.log(terraDrawInstance.getMode());
 	const features = terraDrawInstance.getSnapshot();
 	const polygonFeatures = features.filter(feature => feature.geometry.type === "Polygon");
 	if (polygonFeatures.length > 1) {
@@ -153,7 +155,6 @@ map.on("click", async (e: maplibregl.MapMouseEvent) => {
 			map.flyTo({ center: location.coordinates, offset: [0.0, 125.0], zoom: 7 })
 			if (location.mbid) {
 				const artists = await getArtistsFromArea(location.mbid);
-
 				const n = parseInt(artistsRangeValue.innerText);
 				const randomArtists = artists ? getRandomArtists(artists, n) : null;
 				const nRandomArtists = randomArtists?.length;
@@ -223,8 +224,8 @@ async function getLocationFromCoords(
 		country: data?.countryLabel?.value || "Unknown",
 		mbid: data?.mbid?.value || null,
 		coordinates: {
-			lng: coordsMatch ? parseFloat(coordsMatch[0]) : lng,
-			lat: coordsMatch ? parseFloat(coordsMatch[1]) : lat,
+			lng: coordsMatch ? parseFloat(coordsMatch[0] as any) : lng,
+			lat: coordsMatch ? parseFloat(coordsMatch[1] as any) : lat,
 		},
 	};
 }
