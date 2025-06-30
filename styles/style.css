@@ -192,15 +192,15 @@ ul {
 }
 
 .maplibregl-popup-content {
-	position: absolute;
+	position: absolute !important;
 	max-height: 240px;
 	min-width: 240px;
 	max-width: 400px;
-	border-radius: 12px;
+	border-radius: 12px !important;
 	text-align: center;
 	font-size: 16px;
 	border: 2px solid #4a5568;
-	background: rgb(250, 250, 250, 0.8);
+	background: rgb(250, 250, 250, 0.8) !important;
 }
 
 .maplibregl-popup-close-button {
@@ -216,6 +216,6 @@ ul {
 .maplibregl-ctrl-top-left {
 	display: block;
 	position: absolute;
-	left: 10px;
-	top: 20%;
+	left: 10px !important;
+	top: 20% !important;
 }
