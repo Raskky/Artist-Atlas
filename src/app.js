@@ -35,7 +35,7 @@ for (const style in styles) {
 const mbApi = new MusicBrainzApi({
 	appName: "artist-map",
 	appVersion: "0.0.1",
-	appContactInfo: "alaxandergeraskov1@gmail.com",
+	appContactInfo: "junk4cc806@gmail.com",
 });
 
 // Initialize the map with custom options
