@@ -191,6 +191,19 @@ ul {
 	cursor: none;
 }
 
+.dot {
+	display: block;
+	position: absolute;
+	transform: translate(-50%, -50%);
+	width: 24px;
+	height: 36px;
+	background-image: url(../images/custom-dot.png);
+	background-size: 100%;
+	background-repeat: no-repeat;
+	padding: 0;
+	cursor: none;
+}
+
 .maplibregl-popup-content {
 	position: absolute !important;
 	max-height: 240px;

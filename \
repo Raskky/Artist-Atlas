@@ -22,7 +22,6 @@ const mapStyleSelector = document.getElementById(
 	"map-style-selector",
 );
 
-// Load map styles into a map style selector
 for (const style in styles) {
 	const option = document.createElement("option");
 	option.value = style;
@@ -30,14 +29,12 @@ for (const style in styles) {
 	mapStyleSelector.appendChild(option);
 }
 
-// Initialize MusicBrainzApi to search for artists
 const mbApi = new MusicBrainzApi({
 	appName: "artist-map",
 	appVersion: "0.0.1",
 	appContactInfo: "alaxandergeraskov1@gmail.com",
 });
 
-// Initialize the map with custom options
 const map = new maplibregl.Map({
 	container: "map",
 	style: "https://tiles.openfreemap.org/styles/dark",
@@ -45,7 +42,6 @@ const map = new maplibregl.Map({
 	zoom: 6,
 });
 
-// Initialize draw tools
 const draw = new MaplibreTerradrawControl({
 	modes: [
 		'render',
@@ -56,22 +52,18 @@ const draw = new MaplibreTerradrawControl({
 	open: true,
 });
 
-// Add drawing tools to the map
 map.addControl(draw, 'top-left');
 
-// Extract the terraDrawInstance to access it's methods like "getSnapshot(), getMode(), etc."
 const terraDrawInstance = draw.getTerraDrawInstance();
 
-let circleCoords = {};
-let saveMapStateTimeout;
-
-// Initialize custom map markers and popup
 const marker = new maplibregl.Marker({ element: customMarker, offset: [0, -15] });
 const popup = new maplibregl.Popup({
 	closeOnClick: false,
 	focusAfterOpen: true,
 });
 popup.on("close", () => clearScreen());
+
+let saveMapStateTimeout;
 
 document.addEventListener("keydown", (e) => {
 	if (e.key === "Escape") clearScreen();
@@ -80,13 +72,10 @@ document.addEventListener("keydown", (e) => {
 artistsRange.oninput = function() {
 	artistsRangeValue.innerText = artistsRange.value;
 }
-
-// Listen for changes on a map style selector for style switching
 mapStyleSelector.addEventListener("change", (e) => {
 	const target = e.target;
 	const selectedStyle = target.value.toLowerCase();
 
-	// Store current style between sessions
 	if (styles[selectedStyle]) {
 		localStorage.setItem("mapStyle", selectedStyle);
 	}
@@ -95,7 +84,6 @@ mapStyleSelector.addEventListener("change", (e) => {
 	canvas.style.transition = "opacity 0.5s";
 	canvas.style.opacity = "0";
 
-	// Change map's style with a 500ms timeout for loading purposes
 	setTimeout(() => {
 		if (styles[selectedStyle]) {
 			map.setStyle(styles[selectedStyle]);
@@ -106,58 +94,44 @@ mapStyleSelector.addEventListener("change", (e) => {
 	}, 500);
 });
 
-// Handle any mpa errors that may come up
 map.on("error", (e) => {
 	console.error("Map error: ", e.error);
 });
 
-// Load previous map state when it loads
-// Save map state when movement or zoom is detected
 map.on("load", loadMapState);
 map.on("move", saveMapState);
 map.on("zoom", saveMapState);
 
+terraDrawInstance.on("change", () => {
+	const features = terraDrawInstance.getSnapshot();
+	const polygonFeatures = features.filter(feature => feature.geometry.type === "Polygon");
+	const coords = polygonFeatures[0].geometry?.coordinates[0];
+	console.log(coords);
+})
+
 terraDrawInstance.on("finish", async () => {
-	const polygonFeature = getFirstPolygonFeature(terraDrawInstance);
-	console.log(polygonFeature);
-	if (polygonFeature) {
+	const features = terraDrawInstance.getSnapshot();
+	const polygonFeatures = features.filter(feature => feature.geometry.type === "Polygon");
+	console.log(polygonFeatures);
+	if (polygonFeatures.length > 1) {
 		terraDrawInstance.setMode("static");
 		try {
-			const result = await tryQuery(circleCoords.lng, circleCoords.lat, polygonFeature?.properties?.radiusKilometers, 100);
-			const locations = result?.results?.bindings;
-			const coords = locations.map(loc => {
-				const match = loc?.coords?.value.match?.(/-?\d+\.\d+/g);
-				if (match) {
-					return { lng: parseFloat(match[0]), lat: parseFloat(match[1]) }
-				}
-			});
-			const dots = [];
-
-			for (const coord in coords) {
-				const customDot = document.createElement('div');
-				customDot.className = 'dot';
-				const dot = new maplibregl.Marker({ element: customDot })
-				dot.setLngLat(coords[coord]).addTo(map);
-				dots.push(dot);
-			}
-			console.log(dots);
-		}
-		catch (error) {
+			const result = await tryQuery(lng, lat, polygonFeatures[0]?.properties?.radiusKilometers, 100);
+			console.log(result);
+		} catch (error) {
 			console.error("Error querrying the area:", error);
 		}
 	}
 })
 
 map.on("click", async (e) => {
-	if (circleCoords = {}) {
-		circleCoords = e.lngLat;
-	}
-	const polygonFeature = getFirstPolygonFeature(terraDrawInstance);
-	if (terraDrawInstance.getMode() !== "circle" && !polygonFeature) {
+	const features = terraDrawInstance.getSnapshot();
+	const polygonFeatures = features.filter(feature => feature.geometry.type === "Polygon");
+	if (terraDrawInstance.getMode() !== "circle" && polygonFeatures == 0) {
 		clearScreen();
 		try {
 			marker.setLngLat(e.lngLat).addTo(map);
-			const location = await getLocationOnClick(e.lngLat.lng, e.lngLat.lat);
+			const location = await getLocationFromCoords(e.lngLat.lng, e.lngLat.lat);
 			marker.setLngLat(location.coordinates)
 			map.flyTo({ center: location.coordinates, offset: [0.0, 125.0], zoom: 7 })
 			if (location.mbid) {
@@ -216,7 +190,7 @@ if (savedStyle && styles[savedStyle]) {
 	map.setStyle(styles[savedStyle]);
 }
 
-async function getLocationOnClick(
+async function getLocationFromCoords(
 	lng,
 	lat,
 ) {
@@ -248,7 +222,7 @@ async function tryQuery(
 	currentController = new AbortController();
 	const sparql = `
     #pragma hint.timeout 3000
-         SELECT DISTINCT ?city ?cityLabel ?country ?countryLabel ?coords ?mbid WHERE {
+         SELECT ?city ?cityLabel ?country ?countryLabel ?coords ?mbid WHERE {
            SERVICE wikibase:around {
              ?city wdt:P625 ?coords .
              bd:serviceParam wikibase:center "POINT(${lng} ${lat})"^^geo:wktLiteral;
@@ -369,11 +343,5 @@ function showPopup(coords, content) {
 		.setOffset(45)
 		.setHTML(content)
 		.addTo(map);
-}
-
-function getFirstPolygonFeature(terraDrawInstance) {
-	const features = terraDrawInstance.getSnapshot();
-	const firstPolygonFeature = features.filter(feature => feature.geometry.type === "Polygon")[0];
-	return firstPolygonFeature;
 }
 
