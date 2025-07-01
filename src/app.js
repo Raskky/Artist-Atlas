@@ -12,6 +12,7 @@ const styles = {
 
 const customMarker = document.createElement('div');
 customMarker.className = 'marker';
+const dots = [];
 
 const origin = document.getElementById("origin");
 const artistList = document.getElementById("artist-list");
@@ -117,6 +118,11 @@ map.on("load", loadMapState);
 map.on("move", saveMapState);
 map.on("zoom", saveMapState);
 
+draw.on("feature-deleted", () => {
+	dots.forEach(dot => dot.remove());
+	dots.length = 0;
+});
+
 terraDrawInstance.on("finish", async () => {
 	const polygonFeature = getFirstPolygonFeature(terraDrawInstance);
 	console.log(polygonFeature);
@@ -131,7 +137,6 @@ terraDrawInstance.on("finish", async () => {
 					return { lng: parseFloat(match[0]), lat: parseFloat(match[1]) }
 				}
 			});
-			const dots = [];
 
 			for (const coord in coords) {
 				const customDot = document.createElement('div');
