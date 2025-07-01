@@ -196,12 +196,20 @@ ul {
 	position: absolute;
 	transform: translate(-50%, -50%);
 	width: 24px;
-	height: 36px;
-	background-image: url(../images/custom-dot.png);
+	height: 24px;
+	border-radius: 16px;
 	background-size: 100%;
-	background-repeat: no-repeat;
+	background-color: red;
 	padding: 0;
 	cursor: none;
+}
+
+.dot:hover {
+	width: 30px;
+	height: 30px;
+	background-color: blueviolet;
+	z-index: 1;
+	cursor: pointer;
 }
 
 .maplibregl-popup-content {
