@@ -12,6 +12,7 @@ const MAP_STYLES = {
 };
 
 const MUSIC_GENRES = [
+	"All",
 	"Pop",
 	"Rap",
 	"Hip-Hop",
@@ -27,8 +28,9 @@ const MUSIC_GENRES = [
 ]
 
 const ARTIST_TYPES = [
+	"All",
 	"Artist",
-	"Band",
+	"Group",
 ]
 
 // DOM Elements
@@ -205,14 +207,13 @@ async function displayArtistsFromLocation(location, popup) {
 		elements.artistsRangeValue.textContent = nRandomArtists.toString();
 	}
 
-	// Display artists
 	elements.origin.textContent = `${location.city}, ${location.country}`;
 	elements.origin.style.display = "flex";
 	elements.artistList.style.display = "block";
 
 	const artistInfo = document.createElement("p");
 	artistInfo.id = "artist-info";
-	artistInfo.innerHTML = `<b>${n} Artists from ${location.city}, ${location.country}</b>`;
+	artistInfo.innerHTML = `<b>${nRandomArtists} Artists from ${location.city}, ${location.country}</b>`;
 	elements.artistList.appendChild(artistInfo);
 
 	randomArtists.forEach(artist => {
@@ -428,11 +429,23 @@ const mbApi = new MusicBrainzApi({
 });
 
 async function getArtistsFromArea(areaMBID) {
+	const selectedGenre = elements.genreSelector.value;
+	console.log(selectedGenre);
+	let response;
 	try {
-		const response = await mbApi.browse("artist", {
-			area: areaMBID,
-			limit: 100,
-		});
+		if (selectedGenre === "All") {
+			response = await mbApi.browse("artist", {
+				area: areaMBID,
+				limit: 100,
+			});
+		} else {
+			response = await mbApi.search("artist", {
+				area: areaMBID,
+				tag: selectedGenre,
+				limit: 100,
+			})
+		}
+		console.log(response);
 		return response.artists;
 	} catch (error) {
 		console.error("Error browsing artists from area:", error);
