@@ -11,6 +11,26 @@ const MAP_STYLES = {
 	liberty: "https://tiles.openfreemap.org/styles/liberty",
 };
 
+const MUSIC_GENRES = [
+	"Pop",
+	"Rap",
+	"Hip-Hop",
+	"Rock",
+	"Metal",
+	"EDM",
+	"R&B",
+	"Soul",
+	"Country",
+	"Jazz",
+	"Classical",
+	"Latin",
+]
+
+const ARTIST_TYPES = [
+	"Artist",
+	"Band",
+]
+
 // DOM Elements
 const elements = {
 	origin: document.getElementById("origin"),
@@ -18,6 +38,8 @@ const elements = {
 	artistsRange: document.getElementById("artists-range"),
 	artistsRangeValue: document.getElementById("artists-range-value"),
 	mapStyleSelector: document.getElementById("map-style-selector"),
+	genreSelector: document.getElementById("genre-selector"),
+	artistTypeSelector: document.getElementById("artist-type-selector"),
 };
 
 // State
@@ -32,10 +54,10 @@ const state = {
 function initializeUI() {
 	// Set up map style selector
 	for (const style in MAP_STYLES) {
-		const option = document.createElement("option");
-		option.value = style;
-		option.textContent = style.charAt(0).toUpperCase() + style.slice(1);
-		elements.mapStyleSelector.appendChild(option);
+		const styleOption = document.createElement("option");
+		styleOption.value = style;
+		styleOption.textContent = style.charAt(0).toUpperCase() + style.slice(1);
+		elements.mapStyleSelector.appendChild(styleOption);
 	}
 
 	// Initialize range display
@@ -43,6 +65,21 @@ function initializeUI() {
 	elements.artistsRange.oninput = () => {
 		elements.artistsRangeValue.textContent = elements.artistsRange.value;
 	};
+
+	// Initialize genre selector
+	for (const i in MUSIC_GENRES) {
+		const genreOption = document.createElement("option");
+		genreOption.value = MUSIC_GENRES[i];
+		genreOption.textContent = MUSIC_GENRES[i];
+		elements.genreSelector.appendChild(genreOption);
+	}
+
+	for (const i in ARTIST_TYPES) {
+		const artistTypeOption = document.createElement("option");
+		artistTypeOption.value = ARTIST_TYPES[i],
+			artistTypeOption.textContent = ARTIST_TYPES[i];
+		elements.artistTypeSelector.appendChild(artistTypeOption);
+	}
 }
 
 // Map Initialization
