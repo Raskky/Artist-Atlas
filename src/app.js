@@ -191,7 +191,16 @@ async function handleMapClick(e, map, marker, popup) {
 }
 
 async function displayArtistsFromLocation(location, popup) {
-	const artists = await getArtistsFromArea(location.mbid);
+	let artists = await getArtistsFromArea(location.mbid);
+	const selectedGenre = elements.genreSelector.value;
+	const selectedType = elements.artistTypeSelector.value;
+	if (selectedGenre !== "Any") {
+		artists = filterByGenre(artists, selectedGenre);
+	}
+	if (selectedType !== "Any") {
+		artists = filterByType(artists, selectedType);
+	}
+	console.log(artists);
 	const n = parseInt(elements.artistsRangeValue.textContent);
 	const randomArtists = artists ? getRandomArtists(artists, n) : null;
 	const nRandomArtists = randomArtists?.length;
@@ -429,30 +438,30 @@ const mbApi = new MusicBrainzApi({
 });
 
 async function getArtistsFromArea(areaMBID) {
-	const selectedGenre = elements.genreSelector.value;
-	console.log(selectedGenre);
-	let response;
 	try {
-		response = await mbApi.search("artist", {
+		const response = await mbApi.search("artist", {
 			area: areaMBID,
 			limit: 100,
 			inc: "tags",
 		});
-		console.log(response.artists);
-
-		if (selectedGenre !== "Any") {
-			const data = response.artists.filter(artist => {
-				const tags = artist.tags || [];
-				return tags.some(tag => tag && tag.name && tag.name.toLowerCase().includes(selectedGenre.toLowerCase()));
-			});
-			console.log(data);
-		}
-		return response.artists;
+		const data = response.artists;
+		return data;
 	} catch (error) {
 		console.error("Error browsing artists from area:", error);
 		return null;
 	}
 
+}
+
+function filterByGenre(artists, genre) {
+	return artists.filter(artist => {
+		const tags = artist.tags || [];
+		return tags.some(tag => tag && tag.name && tag.name.toLowerCase().includes(genre.toLowerCase()));
+	});
+}
+
+function filterByType(artists, selectedType) {
+	return artists.filter(artist => artist.type && artist.type.toLowerCase() === selectedType.toLowerCase());
 }
 
 function getRandomArtists(artists, n) {
