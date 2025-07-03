@@ -12,7 +12,7 @@ const MAP_STYLES = {
 };
 
 const MUSIC_GENRES = [
-	"All",
+	"Any",
 	"Pop",
 	"Rap",
 	"Hip-Hop",
@@ -28,7 +28,7 @@ const MUSIC_GENRES = [
 ]
 
 const ARTIST_TYPES = [
-	"All",
+	"Any",
 	"Artist",
 	"Group",
 ]
@@ -433,24 +433,26 @@ async function getArtistsFromArea(areaMBID) {
 	console.log(selectedGenre);
 	let response;
 	try {
-		if (selectedGenre === "All") {
-			response = await mbApi.browse("artist", {
-				area: areaMBID,
-				limit: 100,
+		response = await mbApi.search("artist", {
+			area: areaMBID,
+			limit: 100,
+			inc: "tags",
+		});
+		console.log(response.artists);
+
+		if (selectedGenre !== "Any") {
+			const data = response.artists.filter(artist => {
+				const tags = artist.tags || [];
+				return tags.some(tag => tag && tag.name && tag.name.toLowerCase().includes(selectedGenre.toLowerCase()));
 			});
-		} else {
-			response = await mbApi.search("artist", {
-				area: areaMBID,
-				tag: selectedGenre,
-				limit: 100,
-			})
+			console.log(data);
 		}
-		console.log(response);
 		return response.artists;
 	} catch (error) {
 		console.error("Error browsing artists from area:", error);
 		return null;
 	}
+
 }
 
 function getRandomArtists(artists, n) {
