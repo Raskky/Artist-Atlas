@@ -37,7 +37,6 @@ const ARTIST_TYPES = [
 const elements = {
 	origin: document.getElementById("origin"),
 	artistList: document.getElementById("artist-list"),
-	artistListItem: document.getElementById("artist-list-item"),
 	artistsRange: document.getElementById("artists-range"),
 	artistsRangeValue: document.getElementById("artists-range-value"),
 	mapStyleSelector: document.getElementById("map-style-selector"),
@@ -52,6 +51,7 @@ const state = {
 	saveMapStateTimeout: null,
 	currentController: new AbortController(),
 	artists: [],
+	artistData: {},
 };
 
 // Initialize UI
@@ -131,11 +131,13 @@ function setupEventHandlers(map, draw, marker, popup) {
 	// Map style change
 	elements.mapStyleSelector.addEventListener("change", handleStyleChange(map));
 
-	elements.artistList.addEventListener("click", event => {
-		if (event.target.id === elements.artistListItem.id) {
-			handleArtistClick(popup);
+	document.addEventListener("click", (e) => {
+		const target = e.target.closest(".artist-list-item");
+		if (target) {
+			handleArtistClick(target, popup);
 		}
-	});
+	})
+
 	// Draw events
 	draw.on("feature-deleted", () => {
 		state.circleCoords = {};
@@ -195,9 +197,10 @@ async function handleMapClick(e, map, marker, popup) {
 	}
 }
 
-function handleArtistClick(popup) {
-	console.log("hello?");
-	console.log(state.artists?.relations);
+function handleArtistClick(listItem, popup) {
+	const mbid = listItem.dataset.mbid;
+	const artist = state.artistData[mbid];
+	console.log(artist);
 }
 
 async function displayArtistsFromLocation(location, popup) {
@@ -240,10 +243,12 @@ async function displayArtistsFromLocation(location, popup) {
 	elements.artistList.appendChild(artistInfo);
 
 	randomArtists.forEach(artist => {
-		const ul = document.createElement("ul");
-		ul.id = "artist-list-item";
-		ul.textContent = artist.name;
-		elements.artistList.appendChild(ul);
+		const li = document.createElement("li");
+		li.className = "artist-list-item";
+		li.textContent = artist.name;
+		li.dataset.mbid = artist.id;
+		state.artistData[artist.id] = artist;
+		elements.artistList.appendChild(li);
 	});
 
 	const artistsContainer = document.getElementById("artists-container");

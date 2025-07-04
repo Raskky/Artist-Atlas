@@ -79,6 +79,8 @@ ul {
 	padding-bottom: 10px;
 	overflow-x: hidden;
 	overflow-y: hidden;
+	pointer-events: auto;
+	z-index: 1000;
 }
 
 #artist-list:hover {
@@ -92,7 +94,13 @@ ul {
 	text-wrap: wrap;
 }
 
-#artist-list-item:hover {
+.artist-list-item {
+	list-style-type: none;
+	padding: 4px;
+	pointer-events: auto;
+}
+
+.artist-list-item:hover {
 	font-weight: 600;
 	font-size: 16px;
 	cursor: pointer;
