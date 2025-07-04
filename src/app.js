@@ -37,6 +37,7 @@ const ARTIST_TYPES = [
 const elements = {
 	origin: document.getElementById("origin"),
 	artistList: document.getElementById("artist-list"),
+	artistListItem: document.getElementById("artist-list-item"),
 	artistsRange: document.getElementById("artists-range"),
 	artistsRangeValue: document.getElementById("artists-range-value"),
 	mapStyleSelector: document.getElementById("map-style-selector"),
@@ -50,6 +51,7 @@ const state = {
 	circleCoords: {},
 	saveMapStateTimeout: null,
 	currentController: new AbortController(),
+	artists: [],
 };
 
 // Initialize UI
@@ -129,12 +131,11 @@ function setupEventHandlers(map, draw, marker, popup) {
 	// Map style change
 	elements.mapStyleSelector.addEventListener("change", handleStyleChange(map));
 
-	// Map events
-	map.on("error", (e) => console.error("Map error: ", e.error));
-	map.on("load", () => loadMapState(map));
-	map.on("move", () => saveMapState(map));
-	map.on("zoom", () => saveMapState(map));
-
+	elements.artistList.addEventListener("click", event => {
+		if (event.target.id === elements.artistListItem.id) {
+			handleArtistClick(popup);
+		}
+	});
 	// Draw events
 	draw.on("feature-deleted", () => {
 		state.circleCoords = {};
@@ -159,6 +160,10 @@ function setupEventHandlers(map, draw, marker, popup) {
 			}
 		}
 	});
+
+	map.on("load", loadMapState);
+	map.on("move", saveMapState);
+	map.on("zoom", saveMapState);
 
 	map.on("click", async (e) => {
 		if (Object.keys(state.circleCoords).length === 0) {
@@ -190,8 +195,13 @@ async function handleMapClick(e, map, marker, popup) {
 	}
 }
 
+function handleArtistClick(popup) {
+	console.log("hello?");
+	console.log(state.artists?.relations);
+}
+
 async function displayArtistsFromLocation(location, popup) {
-	let artists = await getArtistsFromArea(location.mbid);
+	state.artists = await getArtistsFromArea(location.mbid);
 	const selectedGenre = elements.genreSelector.value;
 	const selectedType = elements.artistTypeSelector.value;
 	if (selectedGenre !== "Any") {
@@ -200,13 +210,13 @@ async function displayArtistsFromLocation(location, popup) {
 	if (selectedType !== "Any") {
 		artists = filterByType(artists, selectedType);
 	}
-	if (artists && artists.length === 0) {
+	if (state.artists && state.artists.length === 0) {
 		displayNoArtistsPopup(location.coordinates, popup);
 		return;
 	}
-	console.log(artists);
+	console.log(state.artists);
 	const n = parseInt(elements.artistsRangeValue.textContent);
-	const randomArtists = artists ? getRandomArtists(artists, n) : null;
+	const randomArtists = state.artists ? getRandomArtists(state.artists, n) : null;
 	const nRandomArtists = randomArtists?.length;
 
 	if (!nRandomArtists || nRandomArtists <= 0) {
@@ -376,24 +386,27 @@ function clearScreen() {
 	elements.artistList.style.display = "none";
 }
 
-function saveMapState(map) {
+function saveMapState() {
 	clearTimeout(state.saveMapStateTimeout);
 	state.saveMapStateTimeout = setTimeout(() => {
-		const center = map.getCenter();
+		if (!state.map) return;
+
+		const center = state.map.getCenter();
 		localStorage.setItem("mapState", JSON.stringify({
 			lng: center.lng,
 			lat: center.lat,
-			zoom: map.getZoom(),
+			zoom: state.map.getZoom(),
 		}));
 	}, 500);
 }
 
-function loadMapState(map) {
+function loadMapState() {
+	if (!state.map) return;
 	const savedState = localStorage.getItem("mapState");
 	if (savedState) {
 		try {
 			const { lng, lat, zoom } = JSON.parse(savedState);
-			map.jumpTo({ center: [lng, lat], zoom });
+			state.map.jumpTo({ center: [lng, lat], zoom: zoom || 6 });
 		} catch (error) {
 			console.error("Failed to load saved map state:", error);
 		}
