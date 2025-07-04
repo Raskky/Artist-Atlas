@@ -29,7 +29,7 @@ const MUSIC_GENRES = [
 
 const ARTIST_TYPES = [
 	"Any",
-	"Artist",
+	"Person",
 	"Group",
 ]
 
@@ -200,6 +200,10 @@ async function displayArtistsFromLocation(location, popup) {
 	if (selectedType !== "Any") {
 		artists = filterByType(artists, selectedType);
 	}
+	if (artists && artists.length === 0) {
+		displayNoArtistsPopup(location.coordinates, popup);
+		return;
+	}
 	console.log(artists);
 	const n = parseInt(elements.artistsRangeValue.textContent);
 	const randomArtists = artists ? getRandomArtists(artists, n) : null;
@@ -222,11 +226,12 @@ async function displayArtistsFromLocation(location, popup) {
 
 	const artistInfo = document.createElement("p");
 	artistInfo.id = "artist-info";
-	artistInfo.innerHTML = `<b>${nRandomArtists} Artists from ${location.city}, ${location.country}</b>`;
+	artistInfo.innerHTML = `<b>${nRandomArtists} Artists from ${location.city}, ${location.country}</b><hr />`;
 	elements.artistList.appendChild(artistInfo);
 
 	randomArtists.forEach(artist => {
 		const ul = document.createElement("ul");
+		ul.id = "artist-list-item";
 		ul.textContent = artist.name;
 		elements.artistList.appendChild(ul);
 	});
@@ -442,7 +447,7 @@ async function getArtistsFromArea(areaMBID) {
 		const response = await mbApi.search("artist", {
 			area: areaMBID,
 			limit: 100,
-			inc: "tags",
+			inc: "tags+url-rels",
 		});
 		const data = response.artists;
 		return data;
