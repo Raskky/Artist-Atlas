@@ -200,7 +200,32 @@ async function handleMapClick(e, map, marker, popup) {
 function handleArtistClick(listItem, popup) {
 	const mbid = listItem.dataset.mbid;
 	const artist = state.artistData[mbid];
-	console.log(artist);
+	const relations = artist.relations
+		.filter(rel => rel.url)
+		.map(rel => ({
+			url: rel.url.resource,
+			type: rel.type,
+		}));
+	console.log(relations);
+
+	const mediaLinkContainer = document.createElement("div");
+	mediaLinkContainer.className = "media-link-container";
+	const mediaLinkList = document.createElement("div");
+	mediaLinkList.className = "media-link-list";
+	mediaLinkContainer.appendChild(mediaLinkList);
+
+	relations.forEach(rel => {
+		const li = document.createElement("li");
+		li.className = "media-list-item";
+		const mediaLink = document.createElement("a");
+		mediaLink.className = "media-link";
+		mediaLink.href = rel.url;
+		mediaLink.innerText = rel.type;
+		li.appendChild(mediaLink);
+		mediaLinkList.appendChild(li);
+	})
+
+	popup.setHTML(mediaLinkContainer.innerHTML);
 }
 
 async function displayArtistsFromLocation(location, popup) {
