@@ -1,5 +1,5 @@
 body {
-	font-family: "Poppins", sans-serif;
+	font-family: "Poppins", sans-serif !important;
 	margin: 0;
 	padding: 0;
 }
@@ -9,16 +9,45 @@ li {
 }
 
 a {
-	color: #3182ce;
+	color: #fc145e !important;
 	text-decoration: none;
 	position: relative;
 	transition: all 0.3s ease;
+	font-size: 18px !important;
 	font-weight: 500;
 }
 
 a:hover {
 	color: #2c5282;
 	font-weight: 600;
+}
+
+a::after {
+	content: '';
+	position: absolute;
+	width: 100%;
+	height: 2px;
+	bottom: -2px;
+	left: 0;
+	background-color: #3182ce;
+	transform: scaleX(0);
+	transform-origin: bottom left;
+	transition: transform 0.3s ease;
+}
+
+a:focus {
+	outline: 2px solid rgba(49, 130, 206, 0.5);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+a:active {
+	color: #2c5282;
+	transform: translateY(1px);
+}
+
+a:visited {
+	color: #875b87 !important;
 }
 
 ul {

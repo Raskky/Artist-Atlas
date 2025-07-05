@@ -132,9 +132,16 @@ function setupEventHandlers(map, draw, marker, popup) {
 	elements.mapStyleSelector.addEventListener("change", handleStyleChange(map));
 
 	document.addEventListener("click", (e) => {
-		const target = e.target.closest(".artist-list-item");
-		if (target) {
-			handleArtistClick(target, popup);
+		const liTarget = e.target.closest(".artist-list-item");
+		const backBtnTarget = e.target.closest(".go-back-btn");
+
+		if (liTarget) {
+			handleArtistClick(liTarget, popup);
+		}
+
+		if (backBtnTarget) {
+			console.log("test");
+			popup.setHTML(elements.artistsContainer?.innerHTML);
 		}
 	})
 
@@ -201,9 +208,9 @@ function handleArtistClick(listItem, popup) {
 	const mbid = listItem.dataset.mbid;
 	const artist = state.artistData[mbid];
 	const relations = artist.relations
-		.filter(rel => rel.url)
+		.filter(rel => rel?.url)
 		.map(rel => ({
-			url: rel.url.resource,
+			url: rel.url?.resource,
 			type: rel.type,
 		}));
 	console.log(relations);
@@ -214,18 +221,24 @@ function handleArtistClick(listItem, popup) {
 	mediaLinkList.className = "media-link-list";
 	mediaLinkContainer.appendChild(mediaLinkList);
 
-	relations.forEach(rel => {
-		const li = document.createElement("li");
-		li.className = "media-list-item";
-		const mediaLink = document.createElement("a");
-		mediaLink.className = "media-link";
-		mediaLink.href = rel.url;
-		mediaLink.innerText = rel.type;
-		li.appendChild(mediaLink);
-		mediaLinkList.appendChild(li);
-	})
+	if (relations.length > 0) {
+		elements.goBackBtn = document.createElement("button");
+		elements.goBackBtn.className = "go-back-btn";
+		elements.goBackBtn.innerText = "<";
+		mediaLinkList.appendChild(elements.goBackBtn);
 
-	popup.setHTML(mediaLinkContainer.innerHTML);
+		relations.forEach(rel => {
+			const li = document.createElement("li");
+			li.className = "media-list-item";
+			const mediaLink = document.createElement("a");
+			mediaLink.className = "media-link";
+			mediaLink.href = rel.url;
+			mediaLink.innerText = rel.type;
+			li.appendChild(mediaLink);
+			mediaLinkList.appendChild(li);
+		})
+		popup.setHTML(mediaLinkContainer.innerHTML);
+	}
 }
 
 async function displayArtistsFromLocation(location, popup) {
@@ -276,9 +289,9 @@ async function displayArtistsFromLocation(location, popup) {
 		elements.artistList.appendChild(li);
 	});
 
-	const artistsContainer = document.getElementById("artists-container");
-	if (artistsContainer) {
-		showPopup(location.coordinates, artistsContainer.innerHTML, popup);
+	elements.artistsContainer = document.getElementById("artists-container");
+	if (elements.artistsContainer) {
+		showPopup(location.coordinates, elements.artistsContainer.innerHTML, popup);
 		popup.on("close", () => {
 			if (elements.artistsRange.value !== n.toString()) {
 				elements.artistsRangeValue.textContent = n.toString();
