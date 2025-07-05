@@ -9,7 +9,16 @@ li {
 }
 
 a {
+	color: #3182ce;
 	text-decoration: none;
+	position: relative;
+	transition: all 0.3s ease;
+	font-weight: 500;
+}
+
+a:hover {
+	color: #2c5282;
+	font-weight: 600;
 }
 
 ul {
@@ -103,13 +112,16 @@ ul {
 }
 
 .artist-list-item {
+	font-family: "Poppins", sans-serif;
 	list-style-type: none;
 	padding: 4px;
+	font-weight: 500 !important;
 	pointer-events: auto;
+	transition: all 0.2s ease !important;
 }
 
 .artist-list-item:hover {
-	font-weight: 600;
+	font-weight: 600 !important;
 	font-size: 16px;
 	cursor: pointer;
 }
